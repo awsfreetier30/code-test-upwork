@@ -1,10 +1,3 @@
-# # Project structure (run these commands locally)
-# git clone https://github.com/awsfreetier30/code-test-upwork.git
-# cd code-test-upwork
-# mkdir -p .github/workflows
-
-# # Create main GitHub Actions workflow file
-# cat << EOF > .github/workflows/deploy-to-ec2.yml
 name: Deploy to EC2
 
 on:
@@ -14,36 +7,19 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu 22.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: \${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1  # Change to your AWS region
-
     - name: Deploy to EC2
       env:
-        PRIVATE_KEY: \${{ secrets.EC2_SSH_PRIVATE_KEY }}
-        HOST: \${{ secrets.EC2_HOST }}
+        PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        HOST: ${{ secrets.EC2_HOST }}
         USER: ubuntu
       run: |
-        echo "\$PRIVATE_KEY" > private_key && chmod 600 private_key
-        scp -i private_key -o StrictHostKeyChecking=no -r ./* \${USER}@\${HOST}:/var/www/html/
-        ssh -i private_key -o StrictHostKeyChecking=no \${USER}@\${HOST} '
+        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+        scp -i private_key -o StrictHostKeyChecking=no -r ./* ${USER}@${HOST}:/var/www/html/
+        ssh -i private_key -o StrictHostKeyChecking=no ${USER}@${HOST} '
           sudo systemctl restart apache2
         '
-# EOF
-
-# # Update .gitignore to exclude unnecessary files
-# echo "private_key" >> .gitignore
-# echo ".env" >> .gitignore
-
-# # Commit and push changes
-# git add .
-# git commit -m "Add GitHub Actions workflow and update .gitignore"
-# git push origin main
