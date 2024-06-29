@@ -1,0 +1,52 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu 22.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      run: |
+        cd terraform
+        terraform init
+
+    - name: Terraform Apply
+      run: |
+        cd terraform
+        terraform apply -auto-approve -var="key_name=${{ secrets.EC2_KEY_NAME }}"
+
+    - name: Get EC2 Public IP
+      id: get_ip
+      run: |
+        cd terraform
+        echo "PUBLIC_IP=$(terraform output -raw public_ip)" >> $GITHUB_OUTPUT
+
+    - name: Deploy to EC2
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        HOST: ${{ steps.get_ip.outputs.PUBLIC_IP }}
+        USER: ubuntu
+      run: |
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        scp -i private_key -o StrictHostKeyChecking=no -r * ${USER}@${HOST}:/var/www/html/
+        ssh -i private_key -o StrictHostKeyChecking=no ${USER}@${HOST} '
+          sudo systemctl restart apache2
+        '
