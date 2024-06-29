@@ -12,13 +12,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Debug SSH key
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-      run: |
-        echo "Private key length: $(echo "$PRIVATE_KEY" | wc -c)"
-        echo "First few characters: $(echo "$PRIVATE_KEY" | head -c 20)"
-
     - name: Deploy to EC2
       env:
         PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
@@ -27,10 +20,10 @@ jobs:
       run: |
         echo "$PRIVATE_KEY" > private_key
         chmod 600 private_key
-        ssh-keygen -y -f private_key > public_key
-        echo "Public key:"
-        cat public_key
-        ssh -v -i private_key -o StrictHostKeyChecking=no ${USER}@${HOST} 'echo "Connection successful"'
+        ssh -i private_key -o StrictHostKeyChecking=no ${USER}@${HOST} '
+          sudo chown -R ubuntu:ubuntu /var/www/html
+          sudo chmod -R 755 /var/www/html
+        '
         scp -i private_key -o StrictHostKeyChecking=no -r ./* ${USER}@${HOST}:/var/www/html/
         ssh -i private_key -o StrictHostKeyChecking=no ${USER}@${HOST} '
           sudo systemctl restart apache2
