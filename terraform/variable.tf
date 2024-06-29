@@ -12,3 +12,5 @@ variable "key_name" {
   description = "The key pair name for SSH access"
   default     = "key1" # This should match the name of your key pair in AWS, without the .pem extension
 }
+
+

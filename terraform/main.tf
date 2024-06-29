@@ -97,19 +97,6 @@ resource "aws_instance" "web" {
               apt update
               apt upgrade -y
               apt install -y apache2
-              a2enmod rewrite
-              cat > /etc/apache2/sites-available/000-default.conf <<EOT
-              <VirtualHost *:80>
-                  ServerAdmin webmaster@localhost
-                  DocumentRoot /var/www/html
-                  <Directory /var/www/html>
-                      Options Indexes FollowSymLinks
-                      AllowOverride All
-                      Require all granted
-                  </Directory>
-                  ErrorLog \${APACHE_LOG_DIR}/error.log
-                  CustomLog \${APACHE_LOG_DIR}/access.log combined
-              </VirtualHost>
               EOT
               chown -R ubuntu:ubuntu /var/www/html
               chmod -R 755 /var/www/html
