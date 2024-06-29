@@ -1,10 +1,10 @@
-# Project structure (run these commands locally)
-git clone https://github.com/awsfreetier30/code-test-upwork.git
-cd code-test-upwork
-mkdir -p .github/workflows
+# # Project structure (run these commands locally)
+# git clone https://github.com/awsfreetier30/code-test-upwork.git
+# cd code-test-upwork
+# mkdir -p .github/workflows
 
-# Create main GitHub Actions workflow file
-cat << EOF > .github/workflows/deploy-to-ec2.yml
+# # Create main GitHub Actions workflow file
+# cat << EOF > .github/workflows/deploy-to-ec2.yml
 name: Deploy to EC2
 
 on:
@@ -37,13 +37,13 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no \${USER}@\${HOST} '
           sudo systemctl restart apache2
         '
-EOF
+# EOF
 
-# Update .gitignore to exclude unnecessary files
-echo "private_key" >> .gitignore
-echo ".env" >> .gitignore
+# # Update .gitignore to exclude unnecessary files
+# echo "private_key" >> .gitignore
+# echo ".env" >> .gitignore
 
-# Commit and push changes
-git add .
-git commit -m "Add GitHub Actions workflow and update .gitignore"
-git push origin main
+# # Commit and push changes
+# git add .
+# git commit -m "Add GitHub Actions workflow and update .gitignore"
+# git push origin main
